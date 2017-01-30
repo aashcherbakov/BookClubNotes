@@ -25,7 +25,7 @@ router.post('/save', (req, res, next) => {
 
     databaseOperation
         .then(() => res.redirect(`/notes/view?key=${req.body.notekey}`))
-        .catch(err => next(err));
+        .catch(next);
 });
 
 router.get('/view', (req, res, next) => {
@@ -37,7 +37,38 @@ router.get('/view', (req, res, next) => {
                 note
             });
         })
-        .catch(err => next(err));
+        .catch(next);
+});
+
+router.get('/edit', (req, res, next) => {
+    Notes.read(req.query.key)
+        .then(note => {
+            res.render('noteedit', {
+                title: note ? (`Edit ${note.title}`) : 'Add Note',
+                docreate: false,
+                notekey: req.query.key,
+                note
+            });
+        })
+        .catch(next);
+});
+
+router.get('/destroy', (req, res, next) => {
+    Notes.read(req.query.key)
+        .then(note => {
+            res.render('notedestroy', {
+                title: note ? note.title : '',
+                notekey: req.query.key,
+                note
+            });
+        })
+        .catch(next);
+});
+
+router.post('/destroy/confirm', (req, res, next) => {
+    Notes.destroy(req.body.notekey)
+        .then(() => res.redirect('/'))
+        .catch(next);
 });
 
 module.exports = router;
